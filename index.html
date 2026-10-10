@@ -1,0 +1,567 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LabSlot | Smart Lab Scheduler</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f3f5fb;
+    color: #202944;
+}
+
+header {
+    background: #172554;
+    color: white;
+    padding: 22px 7%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 28px;
+}
+
+header p {
+    margin: 6px 0 0;
+    color: #c7d2fe;
+}
+
+.tag {
+    background: #293b70;
+    padding: 10px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+}
+
+main {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 0 18px;
+}
+
+.welcome {
+    background: linear-gradient(120deg, #4338ca, #2563eb);
+    color: white;
+    border-radius: 18px;
+    padding: 28px;
+    margin-bottom: 25px;
+}
+
+.welcome h2 {
+    margin-top: 0;
+    font-size: 27px;
+}
+
+.welcome p {
+    line-height: 1.6;
+    color: #e0e7ff;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.stat, .panel {
+    background: white;
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 3px 15px #1725540b;
+}
+
+.stat p {
+    color: #64748b;
+    margin: 0 0 10px;
+}
+
+.stat h2 {
+    margin: 0;
+    font-size: 30px;
+    color: #4338ca;
+}
+
+.panel {
+    margin-bottom: 25px;
+}
+
+.panel h2 {
+    margin-top: 0;
+}
+
+form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+label {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: white;
+    font-size: 15px;
+}
+
+input:focus, select:focus {
+    outline: 2px solid #a5b4fc;
+    border-color: #6366f1;
+}
+
+.full {
+    grid-column: 1 / -1;
+}
+
+button {
+    padding: 12px 18px;
+    border: none;
+    border-radius: 8px;
+    background: #4338ca;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #3730a3;
+}
+
+.message {
+    display: none;
+    margin-top: 18px;
+    padding: 14px;
+    border-radius: 9px;
+    line-height: 1.5;
+}
+
+.error {
+    display: block;
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.success {
+    display: block;
+    background: #dcfce7;
+    color: #166534;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 750px;
+}
+
+th, td {
+    padding: 13px 10px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 14px;
+}
+
+th {
+    color: #475569;
+    background: #f8fafc;
+}
+
+.delete {
+    background: #dc2626;
+    padding: 8px 10px;
+    font-size: 12px;
+}
+
+.delete:hover {
+    background: #b91c1c;
+}
+
+.empty {
+    color: #64748b;
+    text-align: center;
+    padding: 25px;
+}
+
+footer {
+    text-align: center;
+    color: #64748b;
+    padding: 20px;
+    font-size: 13px;
+}
+
+@media (max-width: 650px) {
+    .stats {
+        grid-template-columns: 1fr;
+    }
+
+    form {
+        grid-template-columns: 1fr;
+    }
+
+    .full {
+        grid-column: auto;
+    }
+
+    .welcome h2 {
+        font-size: 23px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div>
+        <h1>🧪 LabSlot</h1>
+        <p>Smart College Laboratory Scheduler</p>
+    </div>
+    <span class="tag">SMART SCHEDULING SYSTEM</span>
+</header>
+
+<main>
+    <section class="welcome">
+        <h2>Welcome to LabSlot 👋</h2>
+        <p>Plan laboratory sessions, avoid timetable clashes,
+        and manage your college lab schedule in one place.</p>
+    </section>
+
+    <section class="stats">
+        <div class="stat">
+            <p>Total Sessions</p>
+            <h2 id="total">0</h2>
+        </div>
+        <div class="stat">
+            <p>Laboratories Used</p>
+            <h2 id="labs">0</h2>
+        </div>
+        <div class="stat">
+            <p>Student Groups</p>
+            <h2 id="groups">0</h2>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>➕ Schedule a Lab Session</h2>
+
+        <form id="bookingForm">
+            <div class="field full">
+                <label for="title">Experiment / Session Name</label>
+                <input id="title" type="text"
+                       placeholder="e.g. Python Programming Lab" required>
+            </div>
+
+            <div class="field">
+                <label for="date">Date</label>
+                <input id="date" type="date" required>
+            </div>
+
+            <div class="field">
+                <label for="lab">Laboratory</label>
+                <select id="lab" required>
+                    <option value="">Choose a lab</option>
+                    <option>Computer Lab 1</option>
+                    <option>Computer Lab 2</option>
+                    <option>Electronics Lab</option>
+                    <option>Physics Lab</option>
+                    <option>Chemistry Lab</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="start">Start Time</label>
+                <input id="start" type="time" required>
+            </div>
+
+            <div class="field">
+                <label for="end">End Time</label>
+                <input id="end" type="time" required>
+            </div>
+
+            <div class="field">
+                <label for="group">Student Group</label>
+                <select id="group" required>
+                    <option value="">Choose a group</option>
+                    <option>Group A</option>
+                    <option>Group B</option>
+                    <option>Group C</option>
+                    <option>Group D</option>
+                    <option>Group E</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="teacher">Instructor</label>
+                <select id="teacher" required>
+                    <option value="">Choose an instructor</option>
+                    <option>Instructor 1</option>
+                    <option>Instructor 2</option>
+                    <option>Instructor 3</option>
+                    <option>Instructor 4</option>
+                    <option>Instructor 5</option>
+                </select>
+            </div>
+
+            <div class="full">
+                <button type="submit">Check Conflicts & Schedule</button>
+            </div>
+        </form>
+
+        <div id="message" class="message" role="status"
+             aria-live="polite"></div>
+    </section>
+
+    <section class="panel">
+        <h2>📅 Scheduled Sessions</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Session</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Laboratory</th>
+                        <th>Group</th>
+                        <th>Instructor</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="sessionList"></tbody>
+            </table>
+        </div>
+        <p id="empty" class="empty">No sessions scheduled yet.</p>
+    </section>
+</main>
+
+<footer>
+    LabSlot — Smarter scheduling, fewer clashes.
+</footer>
+
+<script>
+const form = document.getElementById("bookingForm");
+const message = document.getElementById("message");
+const sessionList = document.getElementById("sessionList");
+
+let sessions = [];
+
+try {
+    sessions = JSON.parse(
+        localStorage.getItem("labSlotSessions") || "[]"
+    );
+
+    if (!Array.isArray(sessions)) {
+        sessions = [];
+    }
+} catch (error) {
+    sessions = [];
+}
+
+function saveSessions() {
+    try {
+        localStorage.setItem(
+            "labSlotSessions",
+            JSON.stringify(sessions)
+        );
+        return true;
+    } catch (error) {
+        showMessage(
+            "Browser storage is unavailable. Please enable it and try again.",
+            false
+        );
+        return false;
+    }
+}
+
+function showMessage(text, success) {
+    message.textContent = text;
+    message.className = "message " +
+        (success ? "success" : "error");
+}
+
+function overlaps(a, b) {
+    return a.date === b.date &&
+           a.start < b.end &&
+           a.end > b.start;
+}
+
+function renderSessions() {
+    sessionList.replaceChildren();
+
+    document.getElementById("empty").style.display =
+        sessions.length === 0 ? "block" : "none";
+
+    sessions.forEach(function (s) {
+        const row = document.createElement("tr");
+
+        [
+            s.title,
+            s.date,
+            s.start + " - " + s.end,
+            s.lab,
+            s.group,
+            s.teacher
+        ].forEach(function (value) {
+            const cell = document.createElement("td");
+            cell.textContent = value;
+            row.appendChild(cell);
+        });
+
+        const actionCell = document.createElement("td");
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Cancel";
+        deleteButton.className = "delete";
+        deleteButton.type = "button";
+
+        deleteButton.addEventListener("click", function () {
+            if (!confirm("Cancel this lab session?")) {
+                return;
+            }
+
+            const oldSessions = sessions;
+            sessions = sessions.filter(function (item) {
+                return item.id !== s.id;
+            });
+
+            if (!saveSessions()) {
+                sessions = oldSessions;
+                return;
+            }
+
+            renderSessions();
+            showMessage("Session cancelled successfully.", true);
+        });
+
+        actionCell.appendChild(deleteButton);
+        row.appendChild(actionCell);
+        sessionList.appendChild(row);
+    });
+
+    document.getElementById("total").textContent =
+        sessions.length;
+
+    document.getElementById("labs").textContent =
+        new Set(sessions.map(s => s.lab)).size;
+
+    document.getElementById("groups").textContent =
+        new Set(sessions.map(s => s.group)).size;
+}
+
+form.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const newSession = {
+        id: Date.now().toString() + Math.random().toString(36).slice(2),
+        title: document.getElementById("title").value.trim(),
+        date: document.getElementById("date").value,
+        lab: document.getElementById("lab").value,
+        start: document.getElementById("start").value,
+        end: document.getElementById("end").value,
+        group: document.getElementById("group").value,
+        teacher: document.getElementById("teacher").value
+    };
+
+    if (!newSession.title) {
+        showMessage("Please enter a session name.", false);
+        return;
+    }
+
+    if (newSession.start >= newSession.end) {
+        showMessage(
+            "End time must be later than start time.",
+            false
+        );
+        return;
+    }
+
+    const conflicts = [];
+
+    sessions.forEach(function (existing) {
+        if (!overlaps(newSession, existing)) {
+            return;
+        }
+
+        if (newSession.lab === existing.lab) {
+            conflicts.push(
+                "Laboratory conflict: " + existing.lab +
+                " is booked for " + existing.title +
+                " (" + existing.start + "–" + existing.end + ")."
+            );
+        }
+
+        if (newSession.group === existing.group) {
+            conflicts.push(
+                "Student group conflict: " + existing.group +
+                " already has " + existing.title +
+                " (" + existing.start + "–" + existing.end + ")."
+            );
+        }
+
+        if (newSession.teacher === existing.teacher) {
+            conflicts.push(
+                "Instructor conflict: " + existing.teacher +
+                " already teaches " + existing.title +
+                " (" + existing.start + "–" + existing.end + ")."
+            );
+        }
+    });
+
+    if (conflicts.length > 0) {
+        showMessage(
+            "⚠️ Booking rejected. Please fix these conflicts:\n" +
+            conflicts.join("\n"),
+            false
+        );
+        message.style.whiteSpace = "pre-line";
+        return;
+    }
+
+    const oldSessions = sessions;
+    sessions = [...sessions, newSession];
+
+    if (!saveSessions()) {
+        sessions = oldSessions;
+        return;
+    }
+
+    renderSessions();
+    form.reset();
+    showMessage(
+        "✅ Session scheduled successfully! No conflicts found.",
+        true
+    );
+    message.style.whiteSpace = "normal";
+});
+
+renderSessions();
+</script>
+
+</body>
+</html>
